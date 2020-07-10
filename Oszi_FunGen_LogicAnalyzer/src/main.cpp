@@ -1,7 +1,3 @@
-// constant  -  all upper
-// variable - all small
-// function - camel case
-// 3.3 V is 255 for ADC
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -22,9 +18,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define DEBOUNCE_MS 350                 // button debounce delay 
 
   /*  Variables  */
-bool button_status = false;             // Flag for button input
-volatile uint32_t current_ms  = 0 ;      
-volatile uint32_t previous_ms = 0 ;
+
+uint32_t current_ms       = 0 ;      
+uint32_t previous_ms      = 0 ;
 uint32_t wave_previous_ms = 0 ;
 uint32_t wave_current_ms  = 0 ;
 uint32_t osci_previous_ms = 0 ;
@@ -32,6 +28,7 @@ uint32_t osci_current_ms  = 0 ;
 uint32_t logi_previous_us = 0 ;
 uint32_t logi_current_us  = 0 ;
 
+bool button_status = false;             // Flag for button input
 bool button_V_level_current   = true ; 
 bool button_V_level_previous  = true ; 
 bool welcome_page_status  = false;       // flag to avoid reloading of welcome page repetitively
@@ -41,10 +38,11 @@ bool square_page_status   = false;       // flag to avoid reloading of square pa
 bool triangle_page_status = false;       // flag to avoid reloading of triangle page repetitively
 bool sine_page_status     = false;       // flag to avoid reloading of sine page repetitively
 bool logican_page_status  = false;       // flag to avoid reloading of logic analyzer page repetitively
-bool triangle_ramp        = true;         // true - upward   false - downward
-uint8_t previous_rx_value = 255;          // hold the value of digital read of serial rx
-uint8_t current_rx_value = 255;
-bool start_bit_detect = false;
+bool triangle_ramp        = true;        // true - upward   false - downward
+bool start_bit_detect     = false;
+bool previous_rx_value = 1;              // hold the value of digital read of serial rx
+bool current_rx_value  = 1;
+
 
 int incomingByte = 0 ;                    // for incoming serial data
 int serialvalue = 0;                      // holds value of first recived byte
@@ -77,15 +75,16 @@ void sineWave();
 void osciRead();
 void logicanRead();
 bool readButton();                // reads button status with leading edge and remove debouncing error
-int serialRead();                 // read serial first byte
-void wave_OLED_Memory(int16_t x_val, int16_t val, int x_scale)  ;           // display waveform on oled x- axis and Value of voltage
-void wave_value_OLED(int16_t val) ;                     // shows the value of Voltage on OLED
+int serialRead();                 // read  first byte of serial buffer
+void wave_value_OLED(int16_t val) ;  // shows the value of Voltage on OLED
+
+void wave_OLED_Memory(int16_t x_val, int16_t val, int x_scale);   // display waveform on oled x- axis and Value of voltage
 
 enum states
 {
     WELCOME, MENU, OSCI, SQUARE, TRIANGLE, SINE, LOGIC_AN
 };
-states currentstate = LOGIC_AN;
+states currentstate = WELCOME;
 
 
 void setup() {
@@ -253,11 +252,6 @@ void squarePage()
       display.setTextSize(1);
       display.setCursor(0,0);
       display.println("Square Wave");
-      // for (int8_t iij=0; iij <= 127;iij++)
-      //   {
-      //   display.drawPixel(iij, 36, SSD1306_WHITE);
-      //   iij++;
-      // }
       display.display();
       menu_page_status= false;
       square_page_status= true;
@@ -272,11 +266,6 @@ void trianglePage()
       display.setTextSize(1);
       display.setCursor(0,0);
       display.println("Triangle Wave");
-      // for (int8_t iij=0; iij < 127;iij++)
-      //   {
-      //   display.drawPixel(iij, 36, SSD1306_WHITE);
-      //   iij++;
-      // }
       display.display();
       menu_page_status= false;
       triangle_page_status= true;
@@ -291,11 +280,6 @@ void sinePage()
       display.setTextSize(1);
       display.setCursor(0,0);
       display.println("Sine Wave");
-      // for (int8_t iij=0; iij< 127;iij++)
-      //   {
-      //   display.drawPixel(iij, 36, SSD1306_WHITE);
-      //   iij++;
-      // }
       display.display();
       menu_page_status= false;
       sine_page_status= true;
@@ -315,7 +299,6 @@ void logicanPage()
       menu_page_status= false;
       logican_page_status= true;
       x_value_OLED=0;
-
       previous_rx_value = true;
       current_rx_value = true;
       start_bit_detect = 0;
@@ -336,7 +319,6 @@ void osciRead()
       if( x_value_OLED > 126 )
       {x_value_OLED=0;}
     }
-
       Serial.println(analog_temp);                        // sends the ADC Converstion 0-3.3 V (0-255)
       Serial.flush();    
 }
@@ -345,47 +327,31 @@ void wave_OLED_Memory (int16_t x_val, int16_t val, int x_scale )
   {   x_val = x_val/ x_scale ;
       val = (33-val)+19 ;
       display.drawPixel(x_val, val, SSD1306_WHITE);
-
-
-
-
-      if (previous_value > val )
-      {
-        for (uint8_t i = previous_value; i > val; i--)
-        {
+      if (previous_value > val ){
+        for (uint8_t i = previous_value; i > val; i--){
           display.drawPixel(x_val, i, SSD1306_WHITE);
         }
       }
 
-      if (previous_value < val )
-      {
-        for (uint8_t i = previous_value; i < val; i++)
-        {
+      if (previous_value < val ){
+        for (uint8_t i = previous_value; i < val; i++){
           display.drawPixel(x_val, i, SSD1306_WHITE);
         }
       }
-
       previous_value = val;
-      
-        //  delay (2000);
-        // Serial.print(previous_value);
-        // Serial.print(",,,");
-        // Serial.println(val);
-       
-
-      
       if((x_val%2) == 0){                                     // for dotted lines
         display.drawPixel(x_val, 36, SSD1306_WHITE);}
       else{
         display.drawPixel(x_val, 36, SSD1306_BLACK);}
       
-      //x_val = (x_val & 0b01111111);                        // Make roll over after 127
-      for(int j=12; j<63; j++)
-        { display.drawPixel(((x_val+1) & 0b01111111),j, SSD1306_BLACK);    // Black horzontal sweep
+      //x_val & 0b01111111   --- Make roll over after 127
+      for(int j=12; j<63; j++)              // Black horzontal sweep loop
+        { display.drawPixel(((x_val+1) & 0b01111111),j, SSD1306_BLACK);    
           display.drawPixel(((x_val+2) & 0b01111111),j, SSD1306_BLACK);
           display.drawPixel(((x_val+3) & 0b01111111),j, SSD1306_BLACK);
         }
   } 
+
 void wave_value_OLED(int16_t val)                     // shows the value of Voltage on OLED
 {
           /* convert Votage value into volts and display*/
@@ -393,7 +359,7 @@ void wave_value_OLED(int16_t val)                     // shows the value of Volt
             for(int y=0; y<=7; y++){ 
               display.drawPixel(x,y, SSD1306_BLACK);  }
           }
-          int a =0, b=0 ;             // Voltage converssion
+          int a =0, b=0 ;             // digit extraction in base form
           a = val / 10;
           b = val % 10;
           display.setCursor(90,0);
@@ -417,9 +383,8 @@ void squareWave()
           x_value_OLED++;
           wave_OLED_Memory(x_value_OLED,analog_value, 1);
           wave_value_OLED(analog_value) ;
-          if( x_value_OLED > 126 )
+          if( x_value_OLED >= 127 )
           {x_value_OLED=0;}
-      
       Serial.println(signal_pin_status);
       Serial.flush();
 }
@@ -443,7 +408,7 @@ void triangleWave()
           x_value_OLED++;
           wave_OLED_Memory(x_value_OLED,analog_value, 4);     // one-fourth the x scale
           wave_value_OLED(analog_value) ;
-           if( x_value_OLED > 511 )
+           if( x_value_OLED >= 511 )
           {x_value_OLED=0;}
       }
       Serial.println(signal_pin_status);
@@ -472,6 +437,7 @@ void sineWave(){
     Serial.flush();
 }
 
+/* --------------- Not Tested Loop ----------------------------- */
 void logicanRead(){
     current_rx_value = digitalRead(SERIAL_RX_PIN);
     if((current_rx_value == 0) & (previous_rx_value == 255) & (start_bit_detect == 0))
@@ -502,8 +468,8 @@ void logicanRead(){
       previous_rx_value = 1;
     }
       display.display();
-   
 }
+/* --------------------------------------------------------- */
 
 bool readButton(){
     current_ms= millis();
@@ -512,8 +478,7 @@ bool readButton(){
       previous_ms = current_ms;
       button_V_level_previous = digitalRead(BUTTON);
     }
-    else
-    {
+    else{
       button_status = false;
       button_V_level_previous = digitalRead(BUTTON);
     }
@@ -527,7 +492,6 @@ int serialRead(){
      } 
      else{
         incomingByte = 0; }
-
   return incomingByte;
 }
 
