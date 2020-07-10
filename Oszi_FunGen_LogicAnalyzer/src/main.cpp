@@ -437,7 +437,8 @@ void sineWave(){
     Serial.flush();
 }
 
-/* --------------- Not Tested Loop ----------------------------- */
+/* --------------- Not Tested Loop ---- Logically it should work 9600 bps No parity 1 stop bit------------------------- */
+/* --------------- Was not able to find serial pin/ But tested on slow transition by changing hardwiring------------------------- */
 void logicanRead(){
     current_rx_value = digitalRead(SERIAL_RX_PIN);
     if((current_rx_value == 0) & (previous_rx_value == 1) & (start_bit_detect == 0))
