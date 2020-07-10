@@ -1,5 +1,6 @@
 # Oszi_FunGen_LogicAnalyzer
 This project can work in 3 Modes. Oscilloscope, Function Generator and Logic Analyzer
+
 **Statement of Purpose**
 
 The aim of this project is to implement a system that is capable to works as signal generator , oscilloscope and logic analyzer.
@@ -20,29 +21,25 @@ The aim of this project is to implement a system that is capable to works as sig
 
 **Hardware :**
 
-![](RackMultipart20200710-4-11nuoei_html_24c04158aaaafefe.png) **Figure 1.1: Schematic**
-
 This hardware is programmed and powered up by the USB Micro -B cable. When an USB cable is connected the Teensy 3.2, convert 5V of USB into 3.3V DC. This DC voltage is used to power up other circuitry. In schematic R1 as a pull up resistor. Though, in code we have used internal pullup resistor, but it a good practice of circuit design to use external one if possible. RV1 (potentiometer) is used give variable signal when the device is operation in oscilloscope. DAC pin is used to generate variable voltages that is used in signal generation e.g. sine wave, square wave, and triangular wave.
 
 SSD 1306 is OLED, it is connected to the microcontroller by the I2C protocol.
 
 **Note: Please refer Schematic in Media Folder**
 
+
 **Code**
 
-Its code is based on State Machine strategy. Please refer State Machine Diagram in the Media folder.
+Its code is based on State Machine strategy. **Please refer State Machine Diagram in the Media folder.**
 
 Code of this experiment (main.cpp) can be downloaded from this link
 
 [https://github.com/ErHarjeev/Oszi\_FunGen\_LogicAnalyzer](https://github.com/ErHarjeev/Oszi_FunGen_LogicAnalyzer)
 
-![](RackMultipart20200710-4-11nuoei_html_a4e9aa60dcab6b6.png)
-
-Figure 1.2: State Machine Diagram
 
 **Youtube Link**
 
-[https://www.youtube.com/watch?v=uS5UAXEDbNI&amp;feature=youtu.be](https://www.youtube.com/watch?v=uS5UAXEDbNI&amp;feature=youtu.be)
+[https://www.youtube.com/watch?v=Ez07afBbSX4&feature=youtu.be](https://www.youtube.com/watch?v=Ez07afBbSX4&feature=youtu.be)
 
 **References**
 
