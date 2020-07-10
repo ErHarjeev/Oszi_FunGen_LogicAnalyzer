@@ -440,7 +440,7 @@ void sineWave(){
 /* --------------- Not Tested Loop ----------------------------- */
 void logicanRead(){
     current_rx_value = digitalRead(SERIAL_RX_PIN);
-    if((current_rx_value == 0) & (previous_rx_value == 255) & (start_bit_detect == 0))
+    if((current_rx_value == 0) & (previous_rx_value == 1) & (start_bit_detect == 0))
     {    logi_previous_us = micros();  
           start_bit_detect = 1;
           decoded_byte =0;
